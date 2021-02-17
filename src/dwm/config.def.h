@@ -1,29 +1,34 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx  = 1;        /* border pixel of windows */
-static const int gappx     = 5;                 /* gaps between windows */
-static const unsigned int snap      = 32;       /* snap pixel */
-static const int swallowfloating    = 0;        /* 1 means swallow floating windows by default */
-static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 1;        /* 0 means bottom bar */
-static const int usealtbar          = 1;        /* 1 means use non-dwm status bar */
-static const char *altbarclass      = "Polybar"; /* Alternate bar class name */
-static const char *altbarcmd        = "$HOME/bar.sh"; /* Alternate bar launch command */
-static const char *fonts[]          = { "monospace:size=10" };
+
+static unsigned int borderpx	      = 2;        /* border pixel of windows */
+static unsigned int snap		      = 32;       /* snap pixel */
+static int showbar			      = 1;        /* 0 means no bar */
+static int topbar			      = 1;        /* 0 means bottom bar */
+
+static const int gappx			 = 20;	/* gaps between windows */
+static const int swallowfloating    = 0;	/* 1 means swallow floating windows by default */
+static const int usealtbar          = 1;	/* 1 means use non-dwm status bar */
+static const char *altbarclass      = "Polybar";/* Alternate bar class name */
+static const char *altbarcmd        = "polybar --reload";	/* Alternate bar launch command */
+static const char *fonts[]          = { "JetBrains Mono:size=10" };
 static const char dmenufont[]       = "monospace:size=10";
-static const char col_gray1[]       = "#222222";
-static const char col_gray2[]       = "#444444";
-static const char col_gray3[]       = "#bbbbbb";
-static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
+
+static char normfgcolor[] = "#cabcac";
+static char normbgcolor[] = "#1e1f29";
+static char normbordercolor[] = "#1e1f29";
+static char selfgcolor[] = "#cabcac";
+static char selbgcolor[] = "#1e1f29";
+static char selbordercolor[] = "#e94f63";
+static char *colors[][3] = {
+	/*               fg           bg           border   */
+	[SchemeNorm] = { normfgcolor, normbgcolor, normbordercolor },
+	[SchemeSel]  = { selfgcolor,  selbgcolor,  selbordercolor  },
+};
+
 static const unsigned int baralpha = 0xd0;
 static const unsigned int borderalpha = OPAQUE;
-static const char *colors[][3]      = {
-	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
-};
 static const unsigned int alphas[][3]      = {
 	/*               fg      bg        border     */
 	[SchemeNorm] = { OPAQUE, baralpha, borderalpha },
@@ -31,7 +36,7 @@ static const unsigned int alphas[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -39,14 +44,14 @@ static const Rule rules[] = {
 	 *	WM_NAME(STRING) = title
 	 */
 	/* class     instance  title           tags mask  isfloating  isterminal  noswallow  monitor */
-	{ "Gimp",    NULL,     NULL,           0,         1,          0,           0,        -1 },
-	{ "Firefox", NULL,     NULL,           1 << 8,    0,          0,          -1,        -1 },
-	{ "St",      NULL,     NULL,           0,         0,          1,           0,        -1 },
-	{ NULL,      NULL,     "Event Tester", 0,         0,          0,           1,        -1 }, /* xev */
+	{ "Alacritty",	NULL,     NULL,           0,         0,          1,          -1,        -1 },
+	{ "scratchpad",NULL,     NULL,           0,         1,          1,          -1,        -1 },
+	{ NULL,		NULL,     "Event Tester", 0,         0,          0,           1,        -1 }, //xev 
+	{ "St",		NULL,     NULL,	      0,         0,          1,          -1,        -1 }, 
 };
 
 /* layout(s) */
-static float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
+static float mfact     = 0.5; /* factor of master area size [0.05..0.95] */
 static int nmaster     = 1;    /* number of clients in master area */
 static int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 
@@ -77,15 +82,15 @@ static const char *termcmd[]  = { "st", NULL };
  * Xresources preferences to load at startup
  */
 ResourcePref resources[] = {
-		{ "normbgcolor",        STRING,  &normbgcolor },
-		{ "normbordercolor",    STRING,  &normbordercolor },
-		{ "normfgcolor",        STRING,  &normfgcolor },
-		{ "selbgcolor",         STRING,  &selbgcolor },
-		{ "selbordercolor",     STRING,  &selbordercolor },
-		{ "selfgcolor",         STRING,  &selfgcolor },
-		{ "borderpx",          	INTEGER, &borderpx },
-		{ "snap",          		INTEGER, &snap },
-		{ "showbar",          	INTEGER, &showbar },
+		{ "normbgcolor",		STRING,  &normbgcolor },
+		{ "normbordercolor",	STRING,  &normbordercolor },
+		{ "normfgcolor",		STRING,  &normfgcolor },
+		{ "selbgcolor",		STRING,  &selbgcolor },
+		{ "selbordercolor",		STRING,  &selbordercolor },
+		{ "selfgcolor",		STRING,  &selfgcolor },
+		{ "borderpx",			INTEGER, &borderpx },
+		{ "snap",				INTEGER, &snap },
+		{ "showbar",			INTEGER, &showbar },
 		{ "topbar",          	INTEGER, &topbar },
 		{ "nmaster",          	INTEGER, &nmaster },
 		{ "resizehints",       	INTEGER, &resizehints },
@@ -93,7 +98,8 @@ ResourcePref resources[] = {
 };
 
 static Key keys[] = {
-	/* modifier                     key        function        argument */
+	 modifier                     key        function        argument 
+	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
@@ -105,7 +111,7 @@ static Key keys[] = {
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
 	{ MODKEY,                       XK_Return, zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    view,           {0} },
-	{ MODKEY|ShiftMask,             XK_c,      killclient,     {0} },
+	{ MODKEY,					  XK_q,      killclient,     {0} },
 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
@@ -130,6 +136,8 @@ static Key keys[] = {
 	TAGKEYS(                        XK_7,                      6)
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
+	TAGKEYS(				 	  XK_dead_grave,		    9)
+	TAGKEYS(				 	  XK_apostrophe,		    9)
 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
 };
 
@@ -159,12 +167,20 @@ static IPCCommand ipccommands[] = {
   IPCCOMMAND(  tagmon,              1,      {ARG_TYPE_UINT}   ),
   IPCCOMMAND(  focusmon,            1,      {ARG_TYPE_SINT}   ),
   IPCCOMMAND(  focusstack,          1,      {ARG_TYPE_SINT}   ),
-  IPCCOMMAND(  zoom,                1,      {ARG_TYPE_NONE}   ),
   IPCCOMMAND(  incnmaster,          1,      {ARG_TYPE_SINT}   ),
   IPCCOMMAND(  killclient,          1,      {ARG_TYPE_SINT}   ),
+  IPCCOMMAND(  setgaps,	           1,      {ARG_TYPE_SINT}   ),
+  IPCCOMMAND(  togglebar,           1,      {ARG_TYPE_NONE}   ),
+  IPCCOMMAND(  zoom,                1,      {ARG_TYPE_NONE}   ),
   IPCCOMMAND(  togglefloating,      1,      {ARG_TYPE_NONE}   ),
+  IPCCOMMAND(  togglefullscr,       1,      {ARG_TYPE_NONE}   ),
+  IPCCOMMAND(  viewtoleft,	      1,      {ARG_TYPE_NONE}   ),
+  IPCCOMMAND(  viewtoright,         1,      {ARG_TYPE_NONE}   ),
+  IPCCOMMAND(  tagtoright,          1,      {ARG_TYPE_NONE}   ),
+  IPCCOMMAND(  tagtoleft,           1,      {ARG_TYPE_NONE}   ),
   IPCCOMMAND(  setmfact,            1,      {ARG_TYPE_FLOAT}  ),
   IPCCOMMAND(  setlayoutsafe,       1,      {ARG_TYPE_PTR}    ),
-  IPCCOMMAND(  quit,                1,      {ARG_TYPE_NONE}   )
+  IPCCOMMAND(  quit,                1,      {ARG_TYPE_NONE}   ),
+  IPCCOMMAND(  reload_xresources,   1,      {ARG_TYPE_NONE}   )
 };
 
