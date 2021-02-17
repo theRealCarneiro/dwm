@@ -2,27 +2,29 @@
 
 /* appearance */
 
-static unsigned int borderpx	      = 2;        /* border pixel of windows */
-static unsigned int snap		      = 32;       /* snap pixel */
-static int showbar			      = 1;        /* 0 means no bar */
-static int topbar			      = 1;        /* 0 means bottom bar */
+static unsigned int borderpx		= 2;        /* border pixel of windows */
+static unsigned int snap			= 32;       /* snap pixel */
+static int showbar				= 1;        /* 0 means no bar */
+static int topbar				= 1;        /* 0 means bottom bar */
 
-static const int gappx			 = 20;       /* gaps between windows */
-static const int swallowfloating    = 0;        /* 1 means swallow floating windows by default */
-static const int usealtbar          = 1;        /* 1 means use non-dwm status bar */
-static const char *altbarclass      = "Polybar"; /* Alternate bar class name */
-static const char *altbarcmd        = "$HOME/.local/bin/Polybar/polyLaunch"; /* Alternate bar launch command */
-static const char *fonts[]          = { "JetBrains Mono:size=10" };
-static const char dmenufont[]       = "monospace:size=10";
+static const int gappx			= 20;	/* gaps between windows */
+static const int swallowfloating	= 0;	/* 1 means swallow floating windows by default */
+static const int usealtbar		= 1;	/* 1 means use non-dwm status bar */
+static const char *altbarclass	= "Polybar";/* Alternate bar class name */
+static const char *altbarcmd		= "$HOME/.local/bin/Polybar/polyLaunch"; /* Alternate bar launch command */
+
+static const char *fonts[]		= { "JetBrains Mono:size=10" };
+static const char dmenufont[]		= "monospace:size=10";
 
 #include "/home/gabriel/.cache/wal/dwm.h"
-static const unsigned int baralpha = 0xd0;
-static const unsigned int borderalpha = OPAQUE;
 static char *colors[][3] = {
        /*               fg           bg           border   */
        [SchemeNorm] = { normfgcolor, normbgcolor, normbordercolor },
        [SchemeSel]  = { selfgcolor,  selbgcolor,  selbordercolor  },
 };
+
+static const unsigned int baralpha = 0xd0;
+static const unsigned int borderalpha = OPAQUE;
 static const unsigned int alphas[][3]      = {
 	/*               fg      bg        border     */
 	[SchemeNorm] = { OPAQUE, baralpha, borderalpha },
@@ -41,7 +43,7 @@ static const Rule rules[] = {
 	{ "Alacritty",	NULL,     NULL,           0,         0,          1,          -1,        -1 },
 	{ "scratchpad",NULL,     NULL,           0,         1,          1,          -1,        -1 },
 	{ NULL,		NULL,     "Event Tester", 0,         0,          0,           1,        -1 }, //xev 
-	{ "St",		NULL,     NULL,	      0,         0,          1,          -1,        -1 }, 
+	{ "St",		NULL,	NULL,	      0,         0,          1,          -1,        -1 }, 
 };
 
 /* layout(s) */

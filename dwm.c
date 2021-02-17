@@ -2764,11 +2764,6 @@ load_xresources(void)
 	db = XrmGetStringDatabase(resm);
 	for (p = resources; p < resources + LENGTH(resources); p++)
 		resource_load(db, p->name, p->type, p->dst);
-	int i;
-	for (i = 0; i < LENGTH(colors); i++)
-		scheme[i] = drw_scm_create(drw, colors[i], alphas[i], 3);
-	focus(NULL);
-	arrange(NULL);
 	XCloseDisplay(display);
 }
 
@@ -2776,6 +2771,12 @@ void
 reload_xresources (const Arg *arg)
 {
 	load_xresources();
+	int i;
+	for (i = 0; i < LENGTH(colors); i++)
+		scheme[i] = drw_scm_create(drw, colors[i], alphas[i], 3);
+
+	focus(NULL);
+	arrange(NULL);
 }
 
 int
