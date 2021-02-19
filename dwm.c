@@ -296,6 +296,7 @@ static void xinitvisual();
 static void zoom(const Arg *arg);
 static void load_xresources(void);
 static void reload_xresources (const Arg *arg);
+static void focusurgent(const Arg *arg);
 static void resource_load(XrmDatabase db, char *name, enum resource_type rtype, void *dst);
 
 static pid_t getparentprocess(pid_t p);
@@ -2711,6 +2712,24 @@ zoom(const Arg *arg)
 		if (!c || !(c = nexttiled(c->next)))
 			return;
 	pop(c);
+}
+
+static void
+focusurgent(const Arg *arg)
+{
+	Client *c;
+	int i;
+	for(c=selmon->clients; c && !c->isurgent; c=c->next);
+	if(c) 
+	{
+		for(i=0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
+		if(i < LENGTH(tags)) 
+		{
+			const Arg a = {.ui = 1 << i};
+			view(&a);
+			focus(c);
+		}
+	}
 }
 
 void
