@@ -2,21 +2,27 @@
 
 /* appearance */
 
-static unsigned int borderpx		= 2;        /* border pixel of windows */
-static unsigned int snap			= 32;       /* snap pixel */
-static int showbar				= 1;        /* 0 means no bar */
-static int topbar				= 1;        /* 0 means bottom bar */
-
+static unsigned int borderpx		= 2;		/* border pixel of windows */
+static unsigned int snap			= 32;	/* snap pixel */
 static const int gappx			= 20;	/* gaps between windows */
-static const int swallowfloating	= 0;	/* 1 means swallow floating windows by default */
-static const int usealtbar		= 1;	/* 1 means use non-dwm status bar */
+static const int swallowfloating	= 0;		/* 1 means swallow floating windows by default */
+
+static int showbar				= 1;		/* 0 means no bar */
+static int topbar				= 1;		/* 0 means bottom bar */
+static const int usealtbar		= 1;		/* 1 means use non-dwm status bar */
 static const char *altbarclass	= "Polybar";/* Alternate bar class name */
 static const char *altbarcmd		= "polyLaunch"; /* Alternate bar launch command */
 
-static const char *fonts[]		= { "JetBrains Mono:size=10" };
-static const char dmenufont[]		= "monospace:size=10";
+static const char *fonts[]		= { "JetBrains Mono:size=12" };
+static const char dmenufont[]		= "JetBrains Mono:size=10";
 
-#include "/home/gabriel/.cache/wal/dwm.h"
+//#include "/home/gabriel/.cache/wal/dwm.h"
+static char normfgcolor[]	=	"#a2bfc0";
+static char normbgcolor[]	=	"#0F161E";
+static char normbordercolor[] =	"#0F161E";
+static char selfgcolor[]		=	"#e94f63";
+static char selbgcolor[]		=	"#0F161E";
+static char selbordercolor[]	=	"#e94f63";
 static char *colors[][3] = {
        /*               fg           bg           border   */
        [SchemeNorm] = { normfgcolor, normbgcolor, normbordercolor },
@@ -53,10 +59,10 @@ static int resizehints = 0;    /* 1 means respect size hints in tiled resizals *
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "",      tile },    /* first entry is default */
-//	{ "><>",      NULL },    /* no layout function means floating behavior */
-	{ "",      NULL },    /* no layout function means floating behavior */
-	{ "",      monocle },
+	{ "",	tile },    /* first entry is default */
+	{ "><>",	NULL },    /* no layout function means floating behavior */
+	//{ "",	NULL },    /* no layout function means floating behavior */
+	{ "",	monocle },
 };
 
 /* key definitions */
@@ -76,36 +82,37 @@ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, NULL };
 static const char *termcmd[]  = { "st", NULL };
 
 static Key keys[] = {
-	/* modifier				key        function        argument */
-	//{ MODKEY,				XK_p,		spawn,          {.v = dmenucmd } },
-	//{ MODKEY,				XK_p,		spawn,          {.v = dmenucmd } },
-	//{ MODKEY|ShiftMask,		XK_Return,	spawn,          {.v = termcmd } },
-	//{ MODKEY,				XK_b,		togglebar,      {0} },
-	//{ MODKEY,				XK_j,		focusstack,     {.i = +1 } },
-	//{ MODKEY,				XK_k,		focusstack,     {.i = -1 } },
-	//{ MODKEY,				XK_i,		incnmaster,     {.i = +1 } },
-	//{ MODKEY,				XK_d,		incnmaster,     {.i = -1 } },
-	//{ MODKEY,				XK_h,		setmfact,       {.f = -0.05} },
-	//{ MODKEY,				XK_l,		setmfact,       {.f = +0.05} },
-	//{ MODKEY,				XK_Return,	zoom,           {0} },
-	//{ MODKEY,				XK_Tab,		view,           {0} },
-	//{ MODKEY,				XK_q,		killclient,     {0} },
-	//{ MODKEY,				XK_t,		setlayout,      {.v = &layouts[0]} },
-	//{ MODKEY,				XK_f,		setlayout,      {.v = &layouts[1]} },
-	//{ MODKEY,				XK_m,		setlayout,      {.v = &layouts[2]} },
-	//{ MODKEY,				XK_space,		setlayout,      {0} },
-	//{ MODKEY|ShiftMask,		XK_space,		togglefloating, {0} },
-	//{ MODKEY|ShiftMask,		XK_f,		togglefullscr,  {0} },
-	//{ MODKEY,				XK_0,		view,           {.ui = ~0 } },
-	//{ MODKEY|ShiftMask,		XK_0,		tag,            {.ui = ~0 } },
-	//{ MODKEY,				XK_comma,		focusmon,       {.i = -1 } },
-	//{ MODKEY,				XK_period,	focusmon,       {.i = +1 } },
-	//{ MODKEY|ShiftMask,		XK_comma,		tagmon,         {.i = -1 } },
-	//{ MODKEY|ShiftMask,		XK_period,	tagmon,         {.i = +1 } },
-	//{ MODKEY,				XK_minus,		setgaps,        {.i = -5 } },
-	//{ MODKEY,				XK_equal,		setgaps,        {.i = +5 } },
-	//{ MODKEY|ShiftMask,		XK_equal,		setgaps,        {.i = 0  } },
-	//{ MODKEY|ShiftMask,		XK_q,		quit,           {0} },
+	/* modifier				key			function        argument */
+	{ MODKEY|ShiftMask,			XK_b,		togglebar,      {0} },
+	{ MODKEY,					XK_j,		focusstack,     {.i = +1 } },
+	{ MODKEY,					XK_k,		focusstack,     {.i = -1 } },
+	{ MODKEY|ShiftMask,			XK_j,		viewtoleft,     {.i = +1 } },
+	{ MODKEY|ShiftMask,			XK_k,		viewtoright,	 {.i = -1 } },
+	{ MODKEY|ShiftMask,			XK_h,		tagtoleft,      {.i = +1 } },
+	{ MODKEY|ShiftMask,			XK_l,		tagtoright,	 {.i = -1 } },
+	{ MODKEY,					XK_i,		incnmaster,     {.i = +1 } },
+	{ MODKEY|ShiftMask,			XK_i,		incnmaster,     {.i = -1 } },
+	{ MODKEY,					XK_h,		setmfact,       {.f = -0.05} },
+	{ MODKEY,					XK_l,		setmfact,       {.f = +0.05} },
+	{ MODKEY,					XK_space,		zoom,           {0} },
+	{ MODKEY,					XK_Tab,		view,           {0} },
+	{ MODKEY,					XK_q,		killclient,     {0} },
+	{ MODKEY,					XK_t,		setlayout,      {.v = &layouts[0]} },
+	{ MODKEY,					XK_n,		setlayout,      {.v = &layouts[1]} },
+	{ MODKEY,					XK_m,		setlayout,      {.v = &layouts[2]} },
+	{ MODKEY|ShiftMask,			XK_space,		setlayout,      {0} },
+	{ MODKEY|ShiftMask,			XK_f,		togglefloating, {0} },
+	{ MODKEY,					XK_f,		togglefullscr,  {0} },
+	{ MODKEY,					XK_comma,		focusmon,       {.i = -1 } },
+	{ MODKEY,					XK_period,	focusmon,       {.i = +1 } },
+	{ MODKEY|ShiftMask,			XK_comma,		tagmon,         {.i = -1 } },
+	{ MODKEY|ShiftMask,			XK_period,	tagmon,         {.i = +1 } },
+	{ MODKEY,					XK_minus,		setgaps,        {.i = -5 } },
+	{ MODKEY,					XK_equal,		setgaps,        {.i = +5 } },
+	{ MODKEY|ShiftMask,			XK_equal,		setgaps,        {.i = 0  } },
+	{ MODKEY|ShiftMask,			XK_r,		quit,           {0} },
+	{ MODKEY,					XK_0,		view,           {.ui = ~0 } },
+	{ MODKEY|ShiftMask,			XK_0,		tag,            {.ui = ~0 } },
 	TAGKEYS(					XK_1,					  0)
 	TAGKEYS(					XK_2,					  1)
 	TAGKEYS(					XK_3,					  2)
@@ -115,7 +122,7 @@ static Key keys[] = {
 	TAGKEYS(					XK_7,					  6)
 	TAGKEYS(					XK_8,					  7)
 	TAGKEYS(					XK_9,					  8)
-	//TAGKEYS(				XK_dead_grave,				  9)
+	TAGKEYS(					XK_dead_grave,				  9)
 	//TAGKEYS(				XK_apostrophe,				  9)
 };
 
