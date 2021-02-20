@@ -123,7 +123,7 @@ static Key keys[] = {
 	TAGKEYS(					XK_7,					  6)
 	TAGKEYS(					XK_8,					  7)
 	TAGKEYS(					XK_9,					  8)
-	TAGKEYS(					XK_dead_grave,				  9)
+	//TAGKEYS(				XK_dead_grave,				  9)
 	//TAGKEYS(				XK_apostrophe,				  9)
 };
 
