@@ -1,0 +1,63 @@
+# Maintainer: Carneiro <gabriel.chaves.carneiro@gmail.com>
+pkgname=dwm
+pkgver=6.2
+pkgrel=1
+pkgdesc="A dynamic window manager for X, with a few patches"
+url="http://dwm.suckless.org"
+arch=('i686' 'x86_64')
+license=('MIT')
+depends=('libx11' 'libxinerama' 'libxft' 'yajl' 'freetype2' )
+makedepends=('git' 'make')
+optdepends=('polybar-dwm-module: polybar with dwm module' 'st' 'dmenu')
+source=(
+		http://dl.suckless.org/dwm/dwm-$pkgver.tar.gz
+		config.mk
+		config.h
+		dwm.desktop
+		)
+_patches=(
+		alpha.diff
+		anybar.diff
+		ru_gaps.diff
+		adjtag.diff
+		focusurgent.diff
+		actualfullscreen.diff
+		ipc.diff
+		xrdb.diff
+		swallow.diff
+		)
+source=(${source[@]} ${_patches[@]})
+sha256sums=(
+'97902e2e007aaeaa3c6e3bed1f81785b817b7413947f1db1d3b62b8da4cd110e'
+'SKIP'
+'SKIP'
+'bc36426772e1471d6dd8c8aed91f288e16949e3463a9933fee6390ee0ccd3f81'
+'34e155c557a8afbf4ddf69f58fbad2bbd9b686bedac5a56417f94ce7e92bf0ba'
+'4d50bf49fa1d1b5ef3bc5e2670cad8d6f343ea4204219a0e53498cd0f8c16893'
+'d3783f006b4f501a5ad3520a59fa33164349b8f5875dbc36c0685921ff1a6284'
+'0b303e613948bf4aa68d3495a7dddef0acf925de671377e1f2d144ee77c46e8f'
+'a08e419b210940deb3e75adc08687839442b2a8aabb0af1715971946c1e3e09c'
+'7b4cabdccc8af6ee3d3819452e5028dd9d926b1edc4496f102e19210f0fcd785'
+'29f0039ae765343b0be379d5e1955ab958befd24ac89a36f32735bfd02ee1491'
+'579588fdffac59327b0290abbdb5fef254ab23976600f08c33760300c5c8cfa9'
+'006a97627c635f322caa2d5c95e60b3c455dc7cdc0ffa7747490438139478f40'
+)
+
+build() {
+	cd $pkgname-$pkgver
+	for p in "${_patches[@]}"; do
+		echo "=> $p"
+		patch -p1 < ../$p || return 1
+	done
+	cp -R $srcdir/config.h config.def.h
+	cp $srcdir/config.mk config.mk
+	make
+}
+
+package() {
+	cd $pkgname-$pkgver
+	make PREFIX=/usr DESTDIR=$pkgdir install
+	install -m644 -D LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+	install -m644 -D README "$pkgdir/usr/share/doc/$pkgname/README"
+	install -m644 -D $srcdir/dwm.desktop $pkgdir/usr/share/xsessions/dwm.desktop
+}

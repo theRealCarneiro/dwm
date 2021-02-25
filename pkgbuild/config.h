@@ -45,11 +45,11 @@ static const Rule rules[] = {
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class     instance  title           tags mask  isfloating  isterminal  noswallow  monitor */
-	{ NULL,		NULL,     "Event Tester", 0,         0,          0,           1,        -1 }, //xev 
-	{ "scratchpad",NULL,     NULL,           0,         1,          1,          -1,        -1 },
-	{ "Alacritty",	NULL,     NULL,           0,         0,          1,          -1,        -1 },
-	{ "St",		NULL,	NULL,	      0,         0,          1,          -1,        -1 }, 
+	/* class     instance  title           tags mask  isfloating  monitor */
+	{ NULL,		NULL,     "Event Tester", 0,         0,          -1 }, //xev 
+	{ "scratchpad",NULL,     NULL,           0,         1,          -1 },
+	{ "Alacritty",	NULL,     NULL,           0,         0,          -1 },
+	{ "St",		NULL,	NULL,	      0,         0,          -1 }, 
 };
 
 /* layout(s) */

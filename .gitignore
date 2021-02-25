@@ -3,4 +3,3 @@ dwm
 dwm-msg
 pkg
 *.pkg.tar.zst
-/pkgbuild

@@ -1,0 +1,148 @@
+diff -up a/drw.c b/drw.c
+--- a/drw.c	2019-02-02 10:55:28.000000000 -0200
++++ b/drw.c	2021-02-23 09:33:21.964250754 -0300
+@@ -211,7 +211,7 @@ drw_clr_create(Drw *drw, Clr *dest, cons
+ /* Wrapper to create color schemes. The caller has to call free(3) on the
+  * returned color scheme when done using it. */
+ Clr *
+-drw_scm_create(Drw *drw, const char *clrnames[], const unsigned int alphas[], size_t clrcount)
++drw_scm_create(Drw *drw, char *clrnames[], const unsigned int alphas[], size_t clrcount)
+ {
+ 	size_t i;
+ 	Clr *ret;
+diff -up a/drw.h b/drw.h
+--- a/drw.h	2021-02-23 13:59:56.340072398 -0300
++++ b/drw.h	2021-02-23 14:01:45.655064344 -0300
+@@ -42,7 +42,7 @@ void drw_font_getexts(Fnt *font, const c
+ 
+ /* Colorscheme abstraction */
+ void drw_clr_create(Drw *drw, Clr *dest, const char *clrname, unsigned int alpha);
+-Clr *drw_scm_create(Drw *drw, const char *clrnames[], const unsigned int alphas[], size_t clrcount);
++Clr *drw_scm_create(Drw *drw, char *clrnames[], const unsigned int alphas[], size_t clrcount);
+ 
+ /* Cursor abstraction */
+ Cur *drw_cur_create(Drw *drw, int shape);
+diff -up a/dwm.c b/dwm.c
+--- a/dwm.c	2019-02-02 10:55:28.000000000 -0200
++++ b/dwm.c	2021-02-23 09:33:21.964250754 -0300
+@@ -36,6 +36,7 @@
+ #include <X11/Xlib.h>
+ #include <X11/Xproto.h>
+ #include <X11/Xutil.h>
++#include <X11/Xresource.h>
+ #ifdef XINERAMA
+ #include <X11/extensions/Xinerama.h>
+ #endif /* XINERAMA */
+@@ -141,6 +142,19 @@ typedef struct {
+ 	int monitor;
+ } Rule;
+ 
++/* Xresources preferences */
++enum resource_type {
++	STRING = 0,
++	INTEGER = 1,
++	FLOAT = 2
++};
++
++typedef struct {
++	char *name;
++	enum resource_type type;
++	void *dst;
++} ResourcePref;
++
+ /* function declarations */
+ static void applyrules(Client *c);
+ static int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
+@@ -233,6 +247,9 @@ static int xerror(Display *dpy, XErrorEv
+ static int xerrorstart(Display *dpy, XErrorEvent *ee);
+ static void zoom(const Arg *arg);
+ static void focusurgent(const Arg *arg);
++static void load_xresources(void);
++static void reload_xresources(const Arg *arg);
++static void resource_load(XrmDatabase db, char *name, enum resource_type rtype, void *dst);
+ 
+ /* variables */
+ static const char broken[] = "broken";
+@@ -2124,6 +2140,72 @@ zoom(const Arg *arg)
+ 	pop(c);
+ }
+ 
++void
++resource_load(XrmDatabase db, char *name, enum resource_type rtype, void *dst)
++{
++	char *sdst = NULL;
++	int *idst = NULL;
++	float *fdst = NULL;
++
++	sdst = dst;
++	idst = dst;
++	fdst = dst;
++
++	char fullname[256];
++	char *type;
++	XrmValue ret;
++
++	snprintf(fullname, sizeof(fullname), "%s.%s", "dwm", name);
++	fullname[sizeof(fullname) - 1] = '\0';
++
++	XrmGetResource(db, fullname, "*", &type, &ret);
++	if (!(ret.addr == NULL || strncmp("String", type, 64)))
++	{
++		switch (rtype) {
++		case STRING:
++			strcpy(sdst, ret.addr);
++			break;
++		case INTEGER:
++			*idst = strtoul(ret.addr, NULL, 10);
++			break;
++		case FLOAT:
++			*fdst = strtof(ret.addr, NULL);
++			break;
++		}
++	}
++}
++
++void
++load_xresources(void)
++{
++	Display *display;
++	char *resm;
++	XrmDatabase db;
++	ResourcePref *p;
++
++	display = XOpenDisplay(NULL);
++	resm = XResourceManagerString(display);
++	if (!resm)
++		return;
++
++	db = XrmGetStringDatabase(resm);
++	for (p = resources; p < resources + LENGTH(resources); p++)
++		resource_load(db, p->name, p->type, p->dst);
++	XCloseDisplay(display);
++}
++
++void
++reload_xresources (const Arg *arg)
++{
++	load_xresources();
++	int i;
++	for (i = 0; i < LENGTH(colors); i++)
++		scheme[i] = drw_scm_create(drw, colors[i], alphas[i], 3);
++
++	focus(NULL);
++	arrange(NULL);
++}
++
+ int
+ main(int argc, char *argv[])
+ {
+@@ -2136,6 +2218,8 @@ main(int argc, char *argv[])
+ 	if (!(dpy = XOpenDisplay(NULL)))
+ 		die("dwm: cannot open display");
+ 	checkotherwm();
++	XrmInitialize();
++	load_xresources();
+ 	setup();
+ #ifdef __OpenBSD__
+ 	if (pledge("stdio rpath proc exec", NULL) == -1)
+Somente em b: xrdb.diff

@@ -1,0 +1,36 @@
+diff -up a/dwm.c b/dwm.c
+--- a/dwm.c	2021-02-23 08:23:44.982558485 -0300
++++ b/dwm.c	2021-02-23 08:17:45.916584939 -0300
+@@ -233,6 +233,7 @@ static int xerror(Display *dpy, XErrorEv
+ static int xerrordummy(Display *dpy, XErrorEvent *ee);
+ static int xerrorstart(Display *dpy, XErrorEvent *ee);
+ static void zoom(const Arg *arg);
++static void focusurgent(const Arg *arg);
+ 
+ /* variables */
+ static const char broken[] = "broken";
+@@ -2124,6 +2125,24 @@ zoom(const Arg *arg)
+ 	pop(c);
+ }
+ 
++static void
++focusurgent(const Arg *arg) 
++{
++	Client *c;
++	int i;
++	for(c=selmon->clients; c && !c->isurgent; c=c->next);
++	if(c) 
++	{
++		for(i=0; i < LENGTH(tags) && !((1 << i) & c->tags); i++);
++		if(i < LENGTH(tags)) 
++		{
++			const Arg a = {.ui = 1 << i};
++			view(&a);
++			focus(c);
++		}
++	}
++}
++
+ int
+ main(int argc, char *argv[])
+ {
