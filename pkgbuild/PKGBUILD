@@ -43,21 +43,27 @@ sha256sums=(
 '006a97627c635f322caa2d5c95e60b3c455dc7cdc0ffa7747490438139478f40'
 )
 
-build() {
+prepare() {
 	cd $pkgname-$pkgver
 	for p in "${_patches[@]}"; do
 		echo "=> $p"
 		patch -p1 < ../$p || return 1
 	done
 	cp -R $srcdir/config.h config.def.h
-	cp $srcdir/config.mk config.mk
+	cp -R $srcdir/config.mk config.mk
+}
+
+build() {
+	cd $pkgname-$pkgver
 	make
 }
 
 package() {
 	cd $pkgname-$pkgver
-	make PREFIX=/usr DESTDIR=$pkgdir install
-	install -m644 -D LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-	install -m644 -D README "$pkgdir/usr/share/doc/$pkgname/README"
-	install -m644 -D $srcdir/dwm.desktop $pkgdir/usr/share/xsessions/dwm.desktop
+	#make PREFIX=/usr DESTDIR=$pkgdir install
+	install -Dm755 dwm "$pkgdir/usr/bin/dwm"
+	install -Dm755 dwm-msg "$pkgdir/usr/bin/dwm-msg"
+	install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+	install -Dm644 README "$pkgdir/usr/share/doc/$pkgname/README"
+	install -Dm644 $srcdir/dwm.desktop "$pkgdir/usr/share/xsessions/dwm.desktop"
 }

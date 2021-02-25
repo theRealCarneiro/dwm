@@ -41,9 +41,10 @@ dist: clean
 
 install: all
 	mkdir -p ${DESTDIR}${PREFIX}/bin
-	cp -f dwm dwm-msg ${DESTDIR}${PREFIX}/bin
-	chmod 755 ${DESTDIR}${PREFIX}/bin/dwm
-	chmod 755 ${DESTDIR}${PREFIX}/bin/dwm-msg
+	install -Dm755 dwm dwm-msg ${DESTDIR}${PREFIX}/bin
+	install -Dm644 dwm.desktop ${DESTDIR}/usr/share/xsessions
+	install -Dm644 LICENSE ${DESTDIR}${PREFIX}/share/licenses/dwm/LICENSE
+	install -Dm644 README ${DESTDIR}${PREFIX}/share/doc/dwm/README
 	mkdir -p ${DESTDIR}${MANPREFIX}/man1
 	sed "s/VERSION/${VERSION}/g" < dwm.1 > ${DESTDIR}${MANPREFIX}/man1/dwm.1
 	chmod 644 ${DESTDIR}${MANPREFIX}/man1/dwm.1
@@ -51,6 +52,9 @@ install: all
 uninstall:
 	rm -f ${DESTDIR}${PREFIX}/bin/dwm\
 		${DESTDIR}${MANPREFIX}/man1/dwm.1\
-		${DESTDIR}${PREFIX}/bin/dwm-msg
+		${DESTDIR}${PREFIX}/bin/dwm-msg\
+		${DESTDIR}/usr/share/xsessions/dwm.desktop
+	rm -rf ${DESTDIR}${PREFIX}/share/licenses/dwm\
+		${DESTDIR}${PREFIX}/share/doc/dwm
 
 .PHONY: all options clean dist install uninstall
