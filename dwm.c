@@ -115,6 +115,7 @@ struct Client {
 	int bw, oldbw;
 	unsigned int tags;
 	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen, isterminal, noswallow;
+	int issteam;
 	pid_t pid;
 	Client *next;
 	Client *snext;
@@ -296,6 +297,10 @@ static void xinitvisual();
 static void zoom(const Arg *arg);
 static void load_xresources(void);
 static void reload_xresources (const Arg *arg);
+void movestack(const Arg *arg);
+static void fibonacci(Monitor *mon, int s);
+void dwindle(Monitor *mon);
+void spiral(Monitor *mon);
 static void focusurgent(const Arg *arg);
 static void resource_load(XrmDatabase db, char *name, enum resource_type rtype, void *dst);
 
@@ -378,6 +383,9 @@ applyrules(Client *c)
 	XGetClassHint(dpy, c->win, &ch);
 	class    = ch.res_class ? ch.res_class : broken;
 	instance = ch.res_name  ? ch.res_name  : broken;
+
+	if (strstr(class, "Steam") || strstr(class, "steam_app_"))
+		c->issteam = 1;
 
 	for (i = 0; i < LENGTH(rules); i++) {
 		r = &rules[i];
@@ -733,13 +741,15 @@ configurerequest(XEvent *e)
 			c->bw = ev->border_width;
 		else if (c->isfloating || !selmon->lt[selmon->sellt]->arrange) {
 			m = c->mon;
-			if (ev->value_mask & CWX) {
-				c->oldx = c->x;
-				c->x = m->mx + ev->x;
-			}
-			if (ev->value_mask & CWY) {
-				c->oldy = c->y;
-				c->y = m->my + ev->y;
+			if (!c->issteam) {
+				if (ev->value_mask & CWX) {
+					c->oldx = c->x;
+					c->x = m->mx + ev->x;
+				}
+				if (ev->value_mask & CWY) {
+					c->oldy = c->y;
+					c->y = m->my + ev->y;
+				}
 			}
 			if (ev->value_mask & CWWidth) {
 				c->oldw = c->w;
@@ -2797,6 +2807,137 @@ reload_xresources (const Arg *arg)
 	focus(NULL);
 	arrange(NULL);
 }
+
+void
+movestack(const Arg *arg) 
+{
+
+	Client *c = NULL, *p = NULL, *pc = NULL, *i;
+
+	if(arg->i > 0) 
+	{
+		/* find the client after selmon->sel */
+		for(c = selmon->sel->next; c && (!ISVISIBLE(c) || c->isfloating); c = c->next);
+		if(!c)
+			for(c = selmon->clients; c && (!ISVISIBLE(c) || c->isfloating); c = c->next);
+
+	}
+	else 
+	{
+		/* find the client before selmon->sel */
+		for(i = selmon->clients; i != selmon->sel; i = i->next)
+			if(ISVISIBLE(i) && !i->isfloating)
+				c = i;
+		if(!c)
+			for(; i; i = i->next)
+				if(ISVISIBLE(i) && !i->isfloating)
+					c = i;
+	}
+	/* find the client before selmon->sel and c */
+	for(i = selmon->clients; i && (!p || !pc); i = i->next) 
+	{
+		if(i->next == selmon->sel)
+			p = i;
+		if(i->next == c)
+			pc = i;
+	}
+
+	/* swap c and selmon->sel selmon->clients in the selmon->clients list */
+	if(c && c != selmon->sel) 
+	{
+		Client *temp = selmon->sel->next==c?selmon->sel:selmon->sel->next;
+		selmon->sel->next = c->next==selmon->sel?c:c->next;
+		c->next = temp;
+
+		if(p && p != c)
+			p->next = c;
+		if(pc && pc != selmon->sel)
+			pc->next = selmon->sel;
+
+		if(selmon->sel == selmon->clients)
+			selmon->clients = c;
+		else if(c == selmon->clients)
+			selmon->clients = selmon->sel;
+
+		arrange(selmon);
+	}
+}
+
+static void
+fibonacci(Monitor *m, int s)
+{
+	unsigned int i, n;
+	int nx, ny, nw, nh;
+	Client *c;
+
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+	if (n == 0)
+		return;
+	/*if (n == 1) {*/
+		/*c = nexttiled(m->clients);*/
+		/*resize(c, m->wx + m->gappx, m->wy, m->ww - 2 * c->bw + m->gappx, m->wh - 2 * c->bw, 0);*/
+		/*return;*/
+	/*}*/
+
+	nx = m->wx + m->gappx;
+	ny = m->gappx;
+	nw = m->ww - 2*m->gappx;
+	nh = m->wh - 2*m->gappx;
+
+	for (i = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
+		if ((i % 2 && nh / 2 > 2*c->bw)
+		   || (!(i % 2) && nw / 2 > 2*c->bw)) {
+			if (i < n - 1) {
+				if (i % 2)
+					nh = (nh - m->gappx) / 2;
+				else
+					nw = (nw - m->gappx) / 2;
+
+				if ((i % 4) == 2 && !s)
+					nx += nw + m->gappx;
+				else if ((i % 4) == 3 && !s)
+					ny += nh + m->gappx;
+			}
+			if ((i % 4) == 0) {
+				if (s)
+					ny += nh + m->gappx;
+				else
+					ny -= nh + m->gappx;
+			}
+			else if ((i % 4) == 1)
+				nx += nw + m->gappx;
+			else if ((i % 4) == 2)
+				ny += nh + m->gappx;
+			else if ((i % 4) == 3) {
+				if (s)
+					nx += nw + m->gappx;
+				else
+					nx -= nw + m->gappx;
+			}
+			if (i == 0)	{
+				if (n != 1)
+					nw = (m->ww - 2*m->gappx - m->gappx) * m->mfact;
+				ny = m->wy + m->gappx;
+			}
+			else if (i == 1)
+				nw = m->ww - nw - m->gappx - 2*m->gappx;
+			i++;
+		}
+
+		resize(c, nx, ny, nw - (2*c->bw), nh - (2*c->bw), False);
+	}
+}
+
+void
+dwindle(Monitor *mon) {
+	fibonacci(mon, 1);
+}
+
+void
+spiral(Monitor *mon) {
+	fibonacci(mon, 0);
+}
+
 
 int
 main(int argc, char *argv[])

@@ -59,10 +59,12 @@ static int resizehints = 0;    /* 1 means respect size hints in tiled resizals *
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "",	tile },    /* first entry is default */
-	{ "><>",	NULL },    /* no layout function means floating behavior */
-	//{ "",	NULL },    /* no layout function means floating behavior */
-	{ "",	monocle },
+	{ "",	tile		},    /* first entry is default */
+	//{ "",	NULL		},    /* no layout function means floating behavior */
+	{ "><>",	NULL		},    /* no layout function means floating behavior */
+	{ "[0]",	monocle	},
+ 	{ "[@]",	spiral	},
+ 	{ "[\\]",	dwindle	},
 };
 
 /* key definitions */
@@ -80,12 +82,15 @@ static const Layout layouts[] = {
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, NULL };
 static const char *termcmd[]  = { "st", NULL };
+static const char *jgmenucmd[]  = { "jgmenu_run", NULL };
 
 static Key keys[] = {
 	/* modifier				key			function        argument */
 	{ MODKEY|ShiftMask,			XK_b,		togglebar,      {0} },
 	{ MODKEY,					XK_j,		focusstack,     {.i = +1 } },
 	{ MODKEY,					XK_k,		focusstack,     {.i = -1 } },
+	{ MODKEY|ControlMask,		XK_j,		movestack,      {.i = +1 } },
+	{ MODKEY|ControlMask,		XK_k,		movestack,      {.i = -1 } },
 	{ MODKEY|ShiftMask,			XK_j,		viewtoleft,     {.i = +1 } },
 	{ MODKEY|ShiftMask,			XK_k,		viewtoright,	 {.i = -1 } },
 	{ MODKEY|ShiftMask,			XK_h,		tagtoleft,      {.i = +1 } },
@@ -101,6 +106,9 @@ static Key keys[] = {
 	{ MODKEY,					XK_t,		setlayout,      {.v = &layouts[0]} },
 	{ MODKEY,					XK_n,		setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,					XK_m,		setlayout,      {.v = &layouts[2]} },
+
+	{ MODKEY|ShiftMask,			XK_s,		setlayout,      {.v = &layouts[3]} },
+	{ MODKEY|ControlMask,		XK_s,		setlayout,      {.v = &layouts[4]} },
 	{ MODKEY|ShiftMask,			XK_space,		setlayout,      {0} },
 	{ MODKEY|ShiftMask,			XK_f,		togglefloating, {0} },
 	{ MODKEY,					XK_f,		togglefullscr,  {0} },
@@ -142,6 +150,7 @@ static Button buttons[] = {
 	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+	{ ClkRootWin,		    0,			Button3,		 spawn,		  {.v = jgmenucmd } },
 };
 /*
  * Xresources preferences to load at startup
